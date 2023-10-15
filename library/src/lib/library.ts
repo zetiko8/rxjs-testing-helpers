@@ -4,10 +4,8 @@ import {
 import {
   map,
 } from 'rxjs/operators';
-import {
-  ColdObservable,
-} from 'rxjs/internal/testing/ColdObservable';
 import * as chai from 'chai';
+import { ColdCreator, Logger, MarbleDefinition } from './types';
 
 const expect = chai.expect;
 
@@ -25,10 +23,6 @@ export const debugTicks = (
     lines += '-';
   }
 };
-
-export type ColdCreator = <T = string>(marbles: string, values?: {
-  [marble: string]: T;
-} | undefined, error?: unknown) => ColdObservable<T>;
 
 function getNumberOfSyncGroupings (
   expected: unknown,
@@ -49,6 +43,11 @@ function getNumberOfSyncGroupings (
 export const assertDeepEqual = (
   actual: any,
   expected: any,
+  options: {
+    logger: Logger,
+  } = {
+    logger: console,
+  },
 ) => {
   try {
     try {
@@ -71,20 +70,18 @@ export const assertDeepEqual = (
       expect(actual).to.eql(expected);
     }
   } catch (error) {
-    const e = Error(`E: ${drawMarbleFromDefs(expected)}
-   A: ${drawMarbleFromDefs(actual)}`);
+    const e = Error(`E: ${drawMarbleFromDefs(expected, options.logger)}
+A: ${drawMarbleFromDefs(actual, options.logger)}`);
     e.stack = '';
     throw e;
   }
 };
 
-interface MarbleDef {
-  frame: number,
-  notification: { kind: 'N'|'C'|'E', value: unknown, error: Error | undefined }
-}
-
-function drawMarbleFromDefs (def: MarbleDef[]) {
-  logDef(def);
+function drawMarbleFromDefs (
+  def: MarbleDefinition[],
+  logger: Logger,
+) {
+  logDef(def, logger);
   let expectedMarble = '.';
   let expectedFrame = 0;
   let isDrawingGroup = false;
@@ -141,7 +138,7 @@ function drawMarbleFromDefs (def: MarbleDef[]) {
   return expectedMarble;
 }
 
-function formatEventValue (ev: MarbleDef): string {
+function formatEventValue (ev: MarbleDefinition): string {
   if (ev.notification.value !== undefined) {
     if (ev.notification.value === true) return 't';
     if (ev.notification.value === false) return 'f';
@@ -155,14 +152,14 @@ function formatEventValue (ev: MarbleDef): string {
   return 'What is this is should not happen';
 }
 
-function logDef (def: MarbleDef[]) {
-  // let s = '';
+function logDef (
+  def: MarbleDefinition[],
+  logger: Logger,
+) {
   def.forEach(d => {
-    // eslint-disable-next-line no-console
-    console.log(`frame: ${d.frame} - ${d.notification.kind}: ${d.notification.error !== undefined ? d.notification.error : d.notification.value}`);
+    logger.debug(`frame: ${d.frame} - ${d.notification.kind}: ${d.notification.error !== undefined ? d.notification.error : d.notification.value}`);
   });
-  // eslint-disable-next-line no-console
-  console.log('----------------------');
+  logger.debug('----------------------');
 }
 
 export const ignoreErrorSub = {

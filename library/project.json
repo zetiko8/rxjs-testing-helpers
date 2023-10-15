@@ -36,6 +36,11 @@
         "ci": {
           "ci": true,
           "codeCoverage": true
+        },
+        "dev": {
+          "ci": false,
+          "codeCoverage": false,
+          "watch": true
         }
       }
     }
