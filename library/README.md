@@ -1,11 +1,3 @@
-# library
+# RxjsTestingHelpers
 
-This library was generated with [Nx](https://nx.dev).
-
-## Building
-
-Run `nx build library` to build the library.
-
-## Running unit tests
-
-Run `nx test library` to execute the unit tests via [Jest](https://jestjs.io).
+Another rxjs testing library.

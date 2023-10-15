@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {},
-  "private": true,
+  "private": false,
   "dependencies": {
     "chai": "^4.3.10",
     "rxjs": "^7.8.1",
