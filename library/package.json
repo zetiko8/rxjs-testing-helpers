@@ -1,0 +1,26 @@
+{
+  "name": "@zetiko8/rxjs-testing-helpers",
+  "version": "0.0.1",
+  "description": "Just another rxjs testing library",
+  "author": "Anže Kolšek <anze.kolsek@@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "rxjs",
+    "testing",
+    "RxMarbles",
+    "rxjs-marbles",
+    "rxjs/testing"
+  ],
+  "peerDependencies": {
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "type": "commonjs",
+  "main": "./src/index.js",
+  "typings": "./src/index.d.ts"
+}
