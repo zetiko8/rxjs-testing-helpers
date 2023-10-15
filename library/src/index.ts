@@ -1,5 +1,4 @@
 export {
-  assertDeepEqual,
   createAfter$,
   debugTicks,
   ignoreErrorSub,
@@ -7,3 +6,8 @@ export {
 export {
   MarbleDefinition,
 } from './lib/types';
+import {
+  assertDeepEqual as assertDeepEqualInternal,
+} from './lib/library';
+export const assertDeepEqual
+  = assertDeepEqualInternal.bind(null, { logger: console });

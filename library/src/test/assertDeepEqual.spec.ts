@@ -4,7 +4,7 @@ import {
   expectToPass,
   ignoreIndent,
 } from './test-helpers';
-import { assertDeepEqual } from '../index';
+import { assertDeepEqual } from '../lib/library';
 import { TestScheduler } from 'rxjs/testing';
 
 export const values = {
