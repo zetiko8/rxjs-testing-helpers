@@ -4,6 +4,10 @@
   "description": "Just another rxjs testing library",
   "author": "Anže Kolšek <anze.kolsek@@gmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zetiko8/rxjs-testing-helpers"
+  },
   "private": false,
   "publishConfig": {
     "access": "public"
