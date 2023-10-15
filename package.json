@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "test": "nx run library:test --configuration=dev"
+    "test": "nx run library:test --configuration=dev",
+    "release": "nx run library:test --configuration=ci && nx run library:build --configuration=production && nx run library:nx-release-publish"
   },
   "private": false,
   "dependencies": {
