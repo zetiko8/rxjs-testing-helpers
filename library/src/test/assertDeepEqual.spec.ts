@@ -1,5 +1,11 @@
-import { TestableLogger, expectToThrow } from './test-helpers';
-import { MarbleDefinition, assertDeepEqual } from '../index';
+import {
+  TestableLogger,
+  expectToFail,
+  expectToPass,
+  ignoreIndent,
+} from './test-helpers';
+import { assertDeepEqual } from '../index';
+import { TestScheduler } from 'rxjs/testing';
 
 export const values = {
   t: true, f: false, a: 'a', b: 'b', c: 'c', n: null, v: 'v',
@@ -13,66 +19,45 @@ describe('library', () => {
       .toBeTruthy();
   });
   it('a = a', () => {
-    const actual: MarbleDefinition = {
-      frame: 0,
-      notification: {
-        error: undefined,
-        kind: 'N',
-        value: 'a',
-      },
-    };
-    const expected: MarbleDefinition = {
-      frame: 0,
-      notification: {
-        error: undefined,
-        kind: 'N',
-        value: 'a',
-      },
-    };
-
-    assertDeepEqual(actual, expected);
-
+    const logger = new TestableLogger(false);
+    expectToPass(() => new TestScheduler(
+      assertDeepEqual.bind(null, { logger }))
+      .run(({ cold, expectObservable }) => {
+        expectObservable(cold('a'))
+          .toBe('a');
+      }));
   });
   it('a = b', () => {
-    const actual: MarbleDefinition[] = [{
-      frame: 0,
-      notification: {
-        error: undefined,
-        kind: 'N',
-        value: 'a',
-      },
-    }];
-    const expected: MarbleDefinition[] = [{
-      frame: 0,
-      notification: {
-        error: undefined,
-        kind: 'N',
-        value: 'b',
-      },
-    }];
-
-    const logger = new TestableLogger();
-    expectToThrow(() => assertDeepEqual(
-      actual, expected, { logger }))
-      .error(error => {
+    const logger = new TestableLogger(false);
+    expectToFail(() => new TestScheduler(
+      assertDeepEqual.bind(null, { logger }))
+      .run(({ cold, expectObservable }) => {
+        expectObservable(cold('a'))
+          .toBe('b');
+      }))
+      .with(ignoreIndent(
+        `E: b
+        A: a`,
+      ))
+      .and(error => {
         expect(logger.debugString)
-          .toBe(
-            // eslint-disable-next-line indent
-`
-frame: 0 - N: b
-----------------------
-frame: 0 - N: a
-----------------------`,
-          );
-
-        expect(error.message)
-          .toBe(
-            // eslint-disable-next-line indent
-`E: b
-A: a`,
-          );
-
+          .toBe(ignoreIndent(
+            `
+            frame: 0 - N: b
+            ----------------------
+            frame: 0 - N: a
+            ----------------------`,
+          ));
       });
-
+  });
+  it('# = #', () => {
+    const error = new Error('test');
+    const logger = new TestableLogger(false);
+    expectToPass(() => new TestScheduler(
+      assertDeepEqual.bind(null, { logger }))
+      .run(({ cold, expectObservable }) => {
+        expectObservable(cold('#', {}, error))
+          .toBe('#', {}, error);
+      }));
   });
 });

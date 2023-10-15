@@ -41,13 +41,13 @@ function getNumberOfSyncGroupings (
 }
 
 export const assertDeepEqual = (
-  actual: any,
-  expected: any,
   options: {
     logger: Logger,
   } = {
     logger: console,
   },
+  actual: any,
+  expected: any,
 ) => {
   try {
     try {
