@@ -112,4 +112,46 @@ describe('library', () => {
           ));
       });
   });
+  it('f-(tf) = f-(tf)', () => {
+    const logger = new TestableLogger(false);
+    expectToPass(() => new TestScheduler(
+      tAssertDeepEqual.bind(null, { logger }))
+      .run(({ cold, expectObservable }) => {
+        expectObservable(cold('f-(tf)'))
+          .toBe('f-(tf)');
+      }));
+  });
+  it('f-(tf) = (tf)-(tf)', () => {
+    const logger = new TestableLogger(false);
+    expectToFail(() => new TestScheduler(
+      tAssertDeepEqual.bind(null, { logger }))
+      .run(({ cold, expectObservable }) => {
+        expectObservable(cold('f-(tf)'))
+          .toBe('(tf)-(tf)');
+      }))
+      .with(
+        // eslint-disable-next-line quotes
+        `expected '(f )-(tf)' to equal '(tf)-(tf)'`,
+      )
+      .and(error => {
+        expect(logger.debugString)
+          .toBe(ignoreIndent(
+            `
+            frame: 0 - N: f
+            frame: 2 - N: t
+            frame: 2 - N: f
+            ----------------------
+            frame: 0 - N: t
+            frame: 0 - N: f
+            frame: 2 - N: t
+            frame: 2 - N: f
+            ----------------------`,
+          ));
+        expect(logger.logString)
+          .toBe(ignoreIndent(`
+            E: (tf)-(tf)
+            A: (f )-(tf)`,
+          ));
+      });
+  });
 });

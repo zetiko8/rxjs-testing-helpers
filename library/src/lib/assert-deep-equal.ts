@@ -1,7 +1,9 @@
 import {
+  drawMarbles,
+} from './draw-marbles';
+import {
   AssertDeepEqualOptions,
   AssertDeepEqualOptionsFull,
-  AssertDeepEqualSymbols,
   Logger,
   MarbleDefinition,
 } from './types';
@@ -46,10 +48,11 @@ export const assertDeepEqual = (
   } catch (error) {
     logDef(actual, opts.logger);
     logDef(expected, opts.logger);
-    const actualDrawing = drawMarbleFromDefs(
-      actual, opts.symbols);
-    const expectedDrawing = drawMarbleFromDefs(
-      expected, opts.symbols);
+
+    const {
+      actual: actualDrawing,
+      expected: expectedDrawing,
+    } = drawMarbles(actual, expected, opts.symbols);
 
     // this strange indent need to be here to
     // make sure the indent is correct in
@@ -75,80 +78,6 @@ function getNumberOfSyncGroupings (
   });
 
   return dict;
-}
-
-function drawMarbleFromDefs (
-  def: MarbleDefinition[],
-  symbols: AssertDeepEqualSymbols,
-) {
-  let expectedMarble = symbols.tick;
-  let expectedFrame = 0;
-  let isDrawingGroup = false;
-  def.forEach((ev, index) => {
-    let addOpeningParenthesis = false;
-    let addClosingParenthesis = false;
-    const next = (def.length - 1) === index ? null : def[index + 1];
-    if (next === null && isDrawingGroup)
-      addClosingParenthesis = true;
-
-    if (
-      !isDrawingGroup
-        && next !== null
-        && next.frame === ev.frame
-    ) {
-      isDrawingGroup = true;
-      addOpeningParenthesis = true;
-    }
-
-    if (
-      next !== null
-        && next.frame !== ev.frame
-    ) {
-      if (isDrawingGroup) addClosingParenthesis = true;
-      isDrawingGroup = false;
-    }
-
-    if (ev.frame === 0) {
-      if (isDrawingGroup || addClosingParenthesis) {
-        if (addOpeningParenthesis) {
-          expectedMarble = '(';
-        }
-        expectedMarble += formatEventValue(ev);
-      }
-      else {
-        expectedMarble = formatEventValue(ev);
-      }
-    }
-    else {
-      if (ev.frame > expectedFrame) {
-        Array.from(
-          new Array(ev.frame - (expectedFrame + 1)),
-        ).forEach(() => expectedMarble += symbols.tick);
-      }
-      if (addOpeningParenthesis) expectedMarble += '(';
-      expectedMarble += formatEventValue(ev);
-    }
-    expectedFrame = ev.frame;
-
-    if (addClosingParenthesis) expectedMarble += ')';
-
-  });
-
-  return expectedMarble;
-}
-
-function formatEventValue (ev: MarbleDefinition): string {
-  if (ev.notification.value !== undefined) {
-    if (ev.notification.value === true) return 't';
-    if (ev.notification.value === false) return 'f';
-    if (ev.notification.value === null) return '_';
-    if (ev.notification.value instanceof Error) return '€';
-    return ev.notification.value as string;
-  }
-  if (ev.notification.error !== undefined) return '#';
-  if (ev.notification.kind === 'C') return '|';
-
-  return 'What is this is should not happen';
 }
 
 function logDef (
