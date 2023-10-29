@@ -5,9 +5,9 @@ export {
 } from './lib/library';
 export {
   MarbleDefinition,
+  AssertDeepEqualOptions,
+  Logger,
 } from './lib/types';
-import {
-  assertDeepEqual as assertDeepEqualInternal,
-} from './lib/library';
-export const assertDeepEqual
-  = assertDeepEqualInternal.bind(null, { logger: console });
+export {
+  assertDeepEqual,
+} from './lib/assert-deep-equal';

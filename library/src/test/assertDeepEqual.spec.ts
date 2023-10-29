@@ -4,8 +4,18 @@ import {
   expectToPass,
   ignoreIndent,
 } from './test-helpers';
-import { assertDeepEqual } from '../lib/library';
+import {
+  AssertDeepEqualOptions,
+  assertDeepEqual,
+} from '../index';
 import { TestScheduler } from 'rxjs/testing';
+
+const tAssertDeepEqual
+  = (
+    options: AssertDeepEqualOptions,
+    actual: any,
+    expected: any,
+  ) => assertDeepEqual(actual, expected, options);
 
 export const values = {
   t: true, f: false, a: 'a', b: 'b', c: 'c', n: null, v: 'v',
@@ -21,32 +31,37 @@ describe('library', () => {
   it('a = a', () => {
     const logger = new TestableLogger(false);
     expectToPass(() => new TestScheduler(
-      assertDeepEqual.bind(null, { logger }))
+      tAssertDeepEqual.bind(null, { logger }))
       .run(({ cold, expectObservable }) => {
         expectObservable(cold('a'))
           .toBe('a');
       }));
   });
   it('a = b', () => {
-    const logger = new TestableLogger(false);
+    const logger = new TestableLogger(true);
     expectToFail(() => new TestScheduler(
-      assertDeepEqual.bind(null, { logger }))
+      tAssertDeepEqual.bind(null, { logger }))
       .run(({ cold, expectObservable }) => {
         expectObservable(cold('a'))
           .toBe('b');
       }))
-      .with(ignoreIndent(
-        `E: b
-        A: a`,
-      ))
+      .with(
+        // eslint-disable-next-line quotes
+        `expected 'a' to equal 'b'`,
+      )
       .and(error => {
         expect(logger.debugString)
           .toBe(ignoreIndent(
             `
-            frame: 0 - N: b
-            ----------------------
             frame: 0 - N: a
+            ----------------------
+            frame: 0 - N: b
             ----------------------`,
+          ));
+        expect(logger.logString)
+          .toBe(ignoreIndent(`
+            E: b
+            A: a`,
           ));
       });
   });
@@ -54,10 +69,47 @@ describe('library', () => {
     const error = new Error('test');
     const logger = new TestableLogger(false);
     expectToPass(() => new TestScheduler(
-      assertDeepEqual.bind(null, { logger }))
+      tAssertDeepEqual.bind(null, { logger }))
       .run(({ cold, expectObservable }) => {
         expectObservable(cold('#', {}, error))
           .toBe('#', {}, error);
       }));
+  });
+  it('-a = -a', () => {
+    const logger = new TestableLogger(false);
+    expectToPass(() => new TestScheduler(
+      tAssertDeepEqual.bind(null, { logger }))
+      .run(({ cold, expectObservable }) => {
+        expectObservable(cold('-a'))
+          .toBe('-a');
+      }));
+  });
+  it('-a = -b', () => {
+    const logger = new TestableLogger(false);
+    expectToFail(() => new TestScheduler(
+      tAssertDeepEqual.bind(null, { logger }))
+      .run(({ cold, expectObservable }) => {
+        expectObservable(cold('-a'))
+          .toBe('-b');
+      }))
+      .with(
+        // eslint-disable-next-line quotes
+        `expected '-a' to equal '-b'`,
+      )
+      .and(error => {
+        expect(logger.debugString)
+          .toBe(ignoreIndent(
+            `
+            frame: 1 - N: a
+            ----------------------
+            frame: 1 - N: b
+            ----------------------`,
+          ));
+        expect(logger.logString)
+          .toBe(ignoreIndent(`
+            E: -b
+            A: -a`,
+          ));
+      });
   });
 });

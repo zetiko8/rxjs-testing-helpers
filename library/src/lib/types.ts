@@ -5,6 +5,20 @@ export interface Logger {
   debug: (...args: any[]) => void;
 }
 
+export interface AssertDeepEqualSymbols {
+  tick: string,
+}
+
+export interface AssertDeepEqualOptions {
+  logger?: Logger,
+  symbols?: AssertDeepEqualSymbols,
+}
+
+export interface AssertDeepEqualOptionsFull {
+  logger: Logger,
+  symbols: AssertDeepEqualSymbols,
+}
+
 export interface MarbleDefinition {
   frame: number;
   notification: {
